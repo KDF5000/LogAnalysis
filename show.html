@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>LogAnalysis</title>
+	<script type="text/javascript" src="jQuery.js"></script>
+</head>
+<style type="text/css">
+	.banner{
+		height: 45px;
+		width: 100%;
+		background-color: #000000;
+		margin-bottom: 10px;
+		color: #ffffff;
+	}
+	.banner h2{
+		line-height: 45px;
+		margin-left: 10px;
+	}
+	table {
+		margin-top: 10px;
+		font-family: verdana,arial,sans-serif;
+		font-size:16px;
+		color:#333333;
+		border-width: 1px;
+		border-color: #666666;
+		border-collapse: collapse;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	table th {
+		border-width: 1px;
+		padding: 8px;
+		border-style: solid;
+		border-color: #666666;
+		background-color: #dedede;
+	}
+	table td {
+		border-width: 1px;
+		padding: 8px;
+		border-style: solid;
+		border-color: #666666;
+		background-color: #ffffff;
+	}
+	#checkbox{
+		margin-top: 8px;
+		display: block;
+	}
+</style>
+<script type="text/javascript">
+$(function(){
+	$('#anyasis').click(function(event) {
+		label = []
+		$("input[name='checkbox']:checked").each(function(index, el) {
+			label.push($(this).val());
+		});
+//		alert(label)
+		/* Act on the event */
+		file_name = $('#log_sel').val();
+	
+		$.ajax({
+			url: 'parse_log.php',
+			type: 'POST',
+			dataType: 'json',
+			data: {'log_file': file_name, 'label': label},
+			success:function(data){
+				if(data['code'] != 200){
+					alert(data['data']);
+					return;
+				}
+				info = data['data'];
+				str = "<tr>";
+				th = "<tr>";
+				for(var key in info){
+					th += "<th>" + key +"</th>";
+					str += "<td>" + info[key] + "</td>";
+				}
+				th += '</tr>';
+				str += '</tr>';
+//				alert(th);
+				$('#info').html(th+str);
+			},
+			error:function(data){
+				alert(data);
+			}
+		});
+		
+	});
+});
+</script>
+<body>
+	<div class='banner'><h2>Apache Access Log Analysis</h2></div>
+	LogPath: <input type='text' id='log_sel'/>
+	<button id='anyasis' value="Anyasis" >Anyasis</button>
+	<br>
+	<span id='checkbox'>
+		<input name="checkbox" type="checkbox" value="AllIndicator" checked/>AllIndicator
+		<input name="checkbox" type="checkbox" value="PV" />PV
+		<input name="checkbox" type="checkbox" value="UV" />UV
+		<input name="checkbox" type="checkbox" value="NumberOfVisit" />NumberOfVisit
+		<input name="checkbox" type="checkbox" value="AvPagesOfVisit" />AvPagesOfVisit
+		<input name="checkbox" type="checkbox" value="AvDurationOfVisit" />AvDurationOfVisit
+		<input name="checkbox" type="checkbox" value="BounceRate" />BounceRate
+		<input name="checkbox" type="checkbox" value="PercentNewVisit" />PercentNewVisit
+	</span>
+	<div>
+		<table id="info">
+
+		</table>
+	</div>
+</body>
+</html>
